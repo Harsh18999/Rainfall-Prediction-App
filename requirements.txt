@@ -5,6 +5,6 @@ requests==2.26.0
 opencage==2.0.0
 joblib==1.1.0
 scikit-learn==0.24.2
-catboost==0.26.1
-xgboost==1.4.2
-lightgbm==3.2.1
+catboost
+xgboost
+lightgbm
