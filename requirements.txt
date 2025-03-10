@@ -8,4 +8,4 @@ scikit-learn
 xgboost
 catboost
 lightgbm
-SciPy
+scipy
