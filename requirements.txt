@@ -1,9 +1,11 @@
-streamlit==1.10.0
-numpy==2.2.3
-requests==2.26.0
+streamlit
+numpy
+pandas
+requests
 opencage
 joblib
 scikit-learn
-catboost
 xgboost
+catboost
 lightgbm
+
