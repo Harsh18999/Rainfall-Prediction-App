@@ -47,7 +47,7 @@ if submit:
             # Fetch Weather Data
             api_key = "82587ef327c30b6e9210054d8780a203"  # Replace with your actual API key
             url = f"https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={api_key}&units=metric"
-            model = joblib.load('model_1.pkl')
+            model = joblib.load('model_1.pkl', mmap_mode=None)
             response = requests.get(url)
             
             if response.status_code == 200:
