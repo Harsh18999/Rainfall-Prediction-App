@@ -6,8 +6,7 @@ from opencage.geocoder import OpenCageGeocode
 from datetime import datetime
 import joblib
 
-# Replace 'YOUR_API_KEY' with your actual OpenCage API key
-API_KEY = 'ede0c6a42bde432e9e71e01aec1c8705'
+API_KEY = st.secrets["opencage_api_key"]
 geocoder = OpenCageGeocode(API_KEY)
 
 # Function to calculate sunshine duration
@@ -21,16 +20,28 @@ def calculate_sunshine_duration(sunrise_ts, sunset_ts):
 def calculate_dewpoint(temp, humidity):
     return temp - ((100 - humidity) / 5)
 
-# Streamlit App Title
-st.title("☔ Rainfall Prediction App")
-st.write("Predict the probability of rainfall in the next 24 hours.")
+# Streamlit App Layout
+st.set_page_config(page_title="Rainfall Prediction", layout="wide")
+st.markdown("""
+    <style>
+        .main {background-color: #f0f2f6;}
+        .stSidebar {background-color: #e6eaf0;}
+    </style>
+""", unsafe_allow_html=True)
+
+# Title
+st.title("☔ Rainfall Prediction Dashboard")
+st.markdown("---")
 
 # Sidebar for user input
 st.sidebar.header("📍 Location Input")
 city = st.sidebar.text_input("Enter City Name")
 state = st.sidebar.text_input("Enter State Name (Optional)")
 country = st.sidebar.text_input("Enter Country Name")
-submit = st.sidebar.button("Get Weather & Predict")
+submit = st.sidebar.button("🔍 Get Weather & Predict")
+
+# Main layout
+data_col, map_col = st.columns([2, 1])
 
 if submit:
     if city and country:
@@ -41,13 +52,14 @@ if submit:
             latitude = results[0]['geometry']['lat']
             longitude = results[0]['geometry']['lng']
             
-            st.sidebar.success(f"✅ Location Found: {city}, {country}")
-            st.sidebar.map(pd.DataFrame({'lat': [latitude], 'lon': [longitude]}))
+            with map_col:
+                st.sidebar.success(f"✅ Location Found: {city}, {country}")
+                st.map(pd.DataFrame({'lat': [latitude], 'lon': [longitude]}))
             
             # Fetch Weather Data
-            api_key = "82587ef327c30b6e9210054d8780a203"  # Replace with your actual API key
+            api_key = st.secrets['openweather_api_key']
             url = f"https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={api_key}&units=metric"
-            model = joblib.load('model_1.pkl', mmap_mode=None)
+            model = joblib.load('model_1.pkl')
             response = requests.get(url)
             
             if response.status_code == 200:
@@ -66,23 +78,25 @@ if submit:
                 test_point = np.array([[pressure, temp_max, dew_point, humidity, cloud, sunshine, wind_speed, sin_day, cos_day]])
                 
                 # Display weather data
-                st.subheader("🌦️ Current Weather Data")
-                st.write(f"**Temperature:** {temperature}°C")
-                st.write(f"**Max Temperature:** {temp_max}°C")
-                st.write(f"**Humidity:** {humidity}%")
-                st.write(f"**Pressure:** {pressure} hPa")
-                st.write(f"**Wind Speed:** {wind_speed:.2f} km/h")
-                st.write(f"**Cloud Cover:** {cloud}%")
-                st.write(f"**Sunshine Duration:** {sunshine:.2f} hours")
-                st.write(f"**Dew Point:** {dew_point:.2f}°C")
-                
+                with data_col:
+                    st.subheader("🌦️ Current Weather Data")
+                    weather_data = pd.DataFrame({
+                        "Parameter": ["Temperature", "Max Temperature", "Humidity", "Pressure", "Wind Speed", "Cloud Cover", "Sunshine Duration", "Dew Point"],
+                        "Value": [
+                            f"{temperature}°C", f"{temp_max}°C", f"{humidity}%", f"{pressure} hPa", 
+                            f"{wind_speed:.2f} km/h", f"{cloud}%", f"{sunshine:.2f} hours", f"{dew_point:.2f}°C"
+                        ]
+                    })
+                    st.table(weather_data)
+                    
                 # Prediction
                 prediction = model.predict_proba(test_point)
                 
                 # Display Prediction Results
-                st.subheader("📊 Rainfall Prediction Probability")
-                st.write(f"**Probability of Rain in Next 24 Hours:** {prediction[0][1] * 100:.2f}%")
-                
+                with data_col:
+                    st.subheader("📊 Rainfall Prediction Probability")
+                    st.metric(label="Chance of Rain", value=f"{prediction[0][1] * 100:.2f}%")
+                    
             else:
                 st.error(f"❌ Error fetching weather data: {response.status_code}")
         else:
