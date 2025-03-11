@@ -6,7 +6,7 @@ from opencage.geocoder import OpenCageGeocode
 from datetime import datetime
 import joblib
 
-API_KEY = st.secrets["opencage_api_key"]
+API_KEY = "ede0c6a42bde432e9e71e01aec1c8705"
 geocoder = OpenCageGeocode(API_KEY)
 
 # Function to calculate sunshine duration
@@ -57,7 +57,7 @@ if submit:
                 st.map(pd.DataFrame({'lat': [latitude], 'lon': [longitude]}))
             
             # Fetch Weather Data
-            api_key = st.secrets['openweather_api_key']
+            api_key = "82587ef327c30b6e9210054d8780a203"
             url = f"https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&appid={api_key}&units=metric"
             model = joblib.load('model_1.pkl')
             response = requests.get(url)
