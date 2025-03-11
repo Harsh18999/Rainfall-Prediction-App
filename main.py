@@ -6,7 +6,7 @@ from opencage.geocoder import OpenCageGeocode
 from datetime import datetime
 import joblib
 
-API_KEY = st.secrets["opencage_api_key"]
+API_KEY = st.secrets["opencage_key"]
 geocoder = OpenCageGeocode(API_KEY)
 
 # Function to calculate sunshine duration
